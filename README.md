@@ -4,22 +4,20 @@ Dead simple dotfile management with the full power of bash.
 
 ## Installation
 
-To install dottie, simply run the following command in your dotfiles repo.
+To install dottie, simply run the following command in your dotfiles repo. This
+will add dottie as a submodule of your dotfiles repo, so you can easily update
+when changes are made to dottie.
 
 ```bash
-curl https://mskelton.dev/dottie.sh --output dottie.sh
-chmod +x dottie.sh
+git submodule add https://github.com/mskelton/dottie
 ```
 
-This will download a file named `dottie.sh` to your repo which you can source
-inside your setup script to gain access to all the tools dottie provides.
+Next, add the following to your side your setup script to gain access to all the
+tools dottie provides.
 
 ```bash
-source ./dottie.sh
+source ./dottie/dottie.sh
 ```
-
-_If you are concerned about security, feel free to checkout the downloaded file.
-It's all just bash script no minified code or special surprises._
 
 ## Usage
 
@@ -36,8 +34,8 @@ link home/.vimrc ~/.vimrc
 ### `link_contents`
 
 Links the contents of a directory and it's subdirectories. This is primarily
-needed for tools such as Fish where the entire directory can't be linked due
-to auto-generated files or other files that cannot be committed to version control.
+needed for tools such as Fish where the entire directory can't be linked due to
+auto-generated files or other files that cannot be committed.
 
 ```bash
 link_contents home ~/
@@ -51,4 +49,14 @@ reporting) and should be run last after all other steps in your configuration.
 
 ```bash
 finalize
+```
+
+## FAQs
+
+### How do I update dottie?
+
+To update dottie, simply run the following command in your dotfiles repo.
+
+```bash
+git submodule update --remote dottie
 ```

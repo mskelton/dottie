@@ -4,8 +4,24 @@ __dottie_error=
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
+
+# Formats a path with the tilde for the home dir
+function format_path {
+	echo "${1/$HOME/~}"
+}
+
+# Cleans up an old file or symlink
+function clean {
+	if [[ -f "$1" ]]; then
+		rm $1
+		echo -e "${YELLOW}Cleaning $(format_path $1)${NC}"
+	else
+		echo -e "${BLUE}File already cleaned $(format_path $1)${NC}"
+	fi
+}
 
 # Symlinks a file or directory
 function link {
@@ -47,7 +63,10 @@ function link_contents {
 function finalize {
 	if [[ -n $error ]]; then
 		echo ""
-		echo -e "${RED}Some links were not successfully set up${NC}"
+		echo -e "${RED}Some tasks were not successful!${NC}"
 		exit 1
+	else
+		echo ""
+		echo -e "${GREEN}All task successfully finished!${NC}"
 	fi
 }

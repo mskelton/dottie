@@ -31,7 +31,7 @@ function link {
 
 	# If the file already exists and is a symlink to the correct source location,
 	# skip linking.
-	if [[ "$(readlink -f "$dest")" == "$src" ]]; then
+	if [[ "$(readlink "$dest")" == "$src" ]]; then
 		echo -e "${BLUE}Link exists $1 -> $formatted_dest${NC}"
 		return
 	fi

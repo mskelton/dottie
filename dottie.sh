@@ -52,9 +52,28 @@ function link {
 # Links the contents of a directory and it's subdirectories. This is primarily
 # needed for tools such as Fish where the entire directory can't be linked due
 # to auto-generated files or other files that cannot be committed to VCS.
-function link_contents {
+function link_dir {
 	for file in $(find "$1" -name "*" ! -name '.DS_Store' -type f); do
 		link "$file" "$2${file/$1\//}"
+	done
+}
+
+# Copies a file to the destination directory
+function copy {
+	local src="$(pwd)/$1"
+	local dest="$2"
+	local formatted_dest="${dest/$HOME/~}"
+
+	echo -e "${GREEN}Copying file $1 -> $formatted_dest${NC}"
+	mkdir -p "$(dirname "$dest")"
+	cp "$src" "$dest"
+}
+
+# Copies the contents of a directory to the specified location. This is useful
+# for copying files such as fonts which cannot be symlinked.
+function copy_dir {
+	for file in $(find "$1" -name "*" ! -name '.DS_Store' -type f -maxdepth 1); do
+		copy "$file" "$2${file/$1\//}"
 	done
 }
 

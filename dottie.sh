@@ -25,6 +25,14 @@ function clean {
 
 # Symlinks a file or directory
 function link {
+	create_dir="y"
+
+	# If the `-s` flag is passed, skip creating the directory
+	if [[ "$1" == "-s" ]]; then
+		create_dir="n"
+		shift
+	fi
+
 	local src="$(pwd)/$1"
 	local dest="$2"
 	local formatted_dest="${dest/$HOME/~}"
@@ -45,7 +53,11 @@ function link {
 
 	# All good, create the link and any parent directories if necessary
 	echo -e "${GREEN}Creating link $1 -> $formatted_dest${NC}"
-	mkdir -p "$(dirname "$dest")"
+
+	if [[ "$create_dir" == "y" ]]; then
+		mkdir -p "$(dirname "$dest")"
+	fi
+
 	ln -s "$src" "$dest"
 }
 
@@ -53,6 +65,12 @@ function link {
 # needed for tools such as Fish where the entire directory can't be linked due
 # to auto-generated files or other files that cannot be committed to VCS.
 function link_dir {
+	flags=""
+	if [[ "$1" == "-s" ]]; then
+		flags="-s"
+		shift
+	fi
+
 	for file in $(find "$1" -name "*" ! -name '.DS_Store' -type f); do
 		link "$file" "$2${file/$1\//}"
 	done

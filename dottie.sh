@@ -82,9 +82,14 @@ function copy {
 	local dest="$2"
 	local formatted_dest="${dest/$HOME/~}"
 
-	echo -e "${GREEN}Copying file $1 -> $formatted_dest${NC}"
-	mkdir -p "$(dirname "$dest")"
-	cp "$src" "$dest"
+	# If the file already exists skip copying
+	if [[ -f "$dest" ]]; then
+		echo -e "${BLUE}File exists $1 -> $formatted_dest${NC}"
+	else
+		echo -e "${GREEN}Copying file $1 -> $formatted_dest${NC}"
+		mkdir -p "$(dirname "$dest")"
+		cp "$src" "$dest"
+	fi
 }
 
 # Copies the contents of a directory to the specified location. This is useful

@@ -65,10 +65,16 @@ function link {
 # needed for tools such as Fish where the entire directory can't be linked due
 # to auto-generated files or other files that cannot be committed to VCS.
 function link_dir {
-	flags=""
+	local flags=""
 	if [[ "$1" == "-s" ]]; then
 		flags="-s"
 		shift
+	fi
+
+	if [[ "$flags" == "-s" && ! -d "$2" ]]; then
+		local dest="${2/$HOME/~}"
+		echo -e "${YELLOW}Skipping link to missing directory $dest${NC}"
+		return
 	fi
 
 	for file in $(find "$1" -name "*" ! -name '.DS_Store' -type f); do

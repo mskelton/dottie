@@ -33,9 +33,9 @@ function link {
 		shift
 	fi
 
-	local src="$(pwd)/$1"
-	local dest="$2"
-	local formatted_dest="${dest/$HOME/~}"
+	src="$(pwd)/$1"
+	dest="$2"
+	formatted_dest="${dest/$HOME/~}"
 
 	# If the file already exists and is a symlink to the correct source location,
 	# skip linking.
@@ -49,6 +49,12 @@ function link {
 		echo -e "${RED}$formatted_dest already exists but is a regular file or directory${NC}"
 		__dottie_error="y"
 		return
+	fi
+
+	# Cleanup dead links
+	if [[ ! -e "$(readlink -f "$dest")" ]]; then
+		echo -e "${YELLOW}Removing dead link $formatted_dest${NC}"
+		rm "$dest"
 	fi
 
 	# All good, create the link and any parent directories if necessary
@@ -72,7 +78,7 @@ function link_dir {
 	fi
 
 	if [[ "$flags" == "-s" && ! -d "$2" ]]; then
-		local dest="${2/$HOME/~}"
+		dest="${2/$HOME/~}"
 		echo -e "${YELLOW}Skipping link to missing directory $dest${NC}"
 		return
 	fi
@@ -84,9 +90,9 @@ function link_dir {
 
 # Copies a file to the destination directory
 function copy {
-	local src="$(pwd)/$1"
-	local dest="$2"
-	local formatted_dest="${dest/$HOME/~}"
+	src="$(pwd)/$1"
+	dest="$2"
+	formatted_dest="${dest/$HOME/~}"
 
 	# If the file already exists skip copying
 	if [[ -f "$dest" ]]; then

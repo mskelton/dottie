@@ -8,6 +8,11 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
+function fail {
+	echo -e "${RED}$1${NC}"
+	__dottie_error="y"
+}
+
 # Formats a path with the tilde for the home dir
 function format_path {
 	echo "${1/$HOME/~}"
@@ -46,25 +51,35 @@ function link {
 
 	# If the file already exists and is a regular file, mark as an error
 	if [[ -e "$dest" ]]; then
-		echo -e "${RED}$formatted_dest already exists but is a regular file or directory${NC}"
-		__dottie_error="y"
+		fail "$formatted_dest already exists but is a regular file or directory"
 		return
 	fi
 
 	# Cleanup broken symlinks
 	if [[ -e "$dest" && ! -e "$(readlink -f "$dest")" ]]; then
 		echo -e "${YELLOW}Removing dead link $formatted_dest${NC}"
-		rm "$dest"
+
+		if ! rm "$dest"; then
+			fail "Failed to remove $formatted_dest"
+			return
+		fi
 	fi
 
 	# All good, create the link and any parent directories if necessary
 	echo -e "${GREEN}Creating link $1 -> $formatted_dest${NC}"
 
 	if [[ "$create_dir" == "y" ]]; then
-		mkdir -p "$(dirname "$dest")"
+		if ! mkdir -p "$(dirname "$dest")"; then
+			fail "Failed to create directory $formatted_dest"
+			return
+		fi
 	fi
 
-	ln -s "$src" "$dest"
+	# Create the link
+	if ! ln -s "$src" "$dest"; then
+		fail "Failed to create link $formatted_dest"
+		return
+	fi
 }
 
 # Links the contents of a directory and it's subdirectories. This is primarily
@@ -100,8 +115,16 @@ function copy {
 		echo -e "${BLUE}File exists $1 -> $formatted_dest${NC}"
 	else
 		echo -e "${GREEN}Copying file $1 -> $formatted_dest${NC}"
-		mkdir -p "$(dirname "$dest")"
-		cp "$src" "$dest"
+
+		if ! mkdir -p "$(dirname "$dest")"; then
+			fail "Failed to create directory $formatted_dest"
+			return
+		fi
+
+		if ! cp "$src" "$dest"; then
+			fail "Failed to copy file $formatted_dest"
+			return
+		fi
 	fi
 }
 

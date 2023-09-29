@@ -51,8 +51,8 @@ function link {
 		return
 	fi
 
-	# Cleanup dead links
-	if [[ ! -e "$(readlink -f "$dest")" ]]; then
+	# Cleanup broken symlinks
+	if [[ -e "$dest" && ! -e "$(readlink -f "$dest")" ]]; then
 		echo -e "${YELLOW}Removing dead link $formatted_dest${NC}"
 		rm "$dest"
 	fi
@@ -83,6 +83,7 @@ function link_dir {
 		return
 	fi
 
+	# shellcheck disable=SC2044
 	for file in $(find "$1" -name "*" ! -name '.DS_Store' -type f); do
 		link "$file" "$2${file/$1\//}"
 	done
@@ -107,6 +108,7 @@ function copy {
 # Copies the contents of a directory to the specified location. This is useful
 # for copying files such as fonts which cannot be symlinked.
 function copy_dir {
+	# shellcheck disable=SC2044
 	for file in $(find "$1" -name "*" ! -name '.DS_Store' -type f -maxdepth 1); do
 		copy "$file" "$2${file/$1\//}"
 	done
